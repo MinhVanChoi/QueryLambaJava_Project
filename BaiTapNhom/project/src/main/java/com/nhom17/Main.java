@@ -57,40 +57,36 @@ public class Main {
 
     private static void menuBanHangDemo() {
         System.out.println("\n" + "=".repeat(60));
-        System.out.println("   DEMO: NHAN VIEN BAN HANG (Khach vang lai)");
+        System.out.println("   DEMO: NHAN VIEN BAN HANG (Khach thanh vien & Khach vang lai)");
         System.out.println("=".repeat(60));
 
-        // BUOC 1: DANG NHAP
         System.out.println("\n[BUOC 1] DANG NHAP HE THONG");
         System.out.print("  Ten dang nhap: ");
         String username = SCANNER.nextLine().trim();
         System.out.print("  Mat khau     : ");
         String password = SCANNER.nextLine().trim();
 
-        var taiKhoan = TAI_KHOAN_SERVICE.getByUsername(username);
-        if (taiKhoan.isEmpty()) {
-            System.out.println("(!) Ten dang nhap khong ton tai.");
+        var tkOpt = TAI_KHOAN_SERVICE.getAll().stream()
+                .filter(t -> t.getTenDangNhap().equalsIgnoreCase(username) && t.getMatKhauHash().equals(password))
+                .findFirst();
+        if (tkOpt.isEmpty()) {
+            System.out.println("(!) Dang nhap that bai (sai ten dang nhap hoac mat khau).");
             return;
         }
-        var tk = taiKhoan.get();
-        if (!tk.getMatKhauHash().equals(password)) {
-            System.out.println("(!) Mat khau sai.");
-            return;
-        }
-        if (tk.getTrangThai() == com.nhom17.enums.TrangThaiTaiKhoan.LOCKED) {
+        var tk = tkOpt.get();
+        if (tk.getTrangThai() == TrangThaiTaiKhoan.LOCKED) {
             System.out.println("(!) Tai khoan da bi khoa.");
             return;
         }
 
         var nhanVien = NHAN_VIEN_SERVICE.getAll().stream()
                 .filter(nv -> nv.getMaNV().equals(tk.getMaNV()))
-                .findFirst().orElse(null);
-        String tenNV = nhanVien != null ? nhanVien.getHoTen() : username;
+                .findFirst();
+        String tenNV = nhanVien.map(NhanVien::getHoTen).orElse(username);
         String maNV  = tk.getMaNV();
-        String maCN  = nhanVien != null ? nhanVien.getMaCN() : "CN01";
+        String maCN  = nhanVien.map(NhanVien::getMaCN).orElse("CN01");
         System.out.println("  >> Xin chao, " + tenNV + "! Chi nhanh: " + maCN);
 
-        // BUOC 2: CHON KHACH HANG
         System.out.println("\n[BUOC 2] THONG TIN KHACH HANG");
         System.out.println("  1. Khach hang co tai khoan");
         System.out.println("  2. Khach vang lai (khong can dang ky)");
@@ -98,23 +94,21 @@ public class Main {
         String maKHDon = null;
         String tenKHDon = "(Khach vang lai)";
         if (khachChoice == 1) {
-            var danhSachKH = KHACH_HANG_SERVICE.getAll();
             System.out.printf("  %-8s | %-20s | %-15s%n", "Ma KH", "Ho Ten", "So Dien Thoai");
             System.out.println("  " + "-".repeat(50));
-            danhSachKH.forEach(kh -> System.out.printf("  %-8s | %-20s | %-15s%n",
-                    kh.getMaKH(), kh.getHoTen(), kh.getSoDienThoai() != null ? kh.getSoDienThoai() : ""));
+            KHACH_HANG_SERVICE.getAll().forEach(kh -> System.out.printf("  %-8s | %-20s | %-15s%n",
+                    kh.getMaKH(), kh.getHoTen(), Optional.ofNullable(kh.getSoDienThoai()).orElse("")));
             System.out.print("  Nhap ma khach hang: ");
             String maKHInput = SCANNER.nextLine().trim();
             var khOpt = KHACH_HANG_SERVICE.getAll().stream()
                     .filter(kh -> kh.getMaKH().equalsIgnoreCase(maKHInput))
                     .findFirst();
-            if (khOpt.isPresent()) {
-                maKHDon = khOpt.get().getMaKH();
-                tenKHDon = khOpt.get().getHoTen();
-                System.out.println("  >> Khach hang: " + tenKHDon + " (" + maKHDon + ")");
-            } else {
-                System.out.println("  (!) Khong tim thay khach hang, chuyen sang khach vang lai.");
-            }
+            maKHDon = khOpt.map(KhachHang::getMaKH).orElse(null);
+            tenKHDon = khOpt.map(KhachHang::getHoTen).orElse("(Khach vang lai)");
+            khOpt.ifPresentOrElse(
+                    kh -> System.out.println("  >> Khach hang: " + kh.getHoTen() + " (" + kh.getMaKH() + ")"),
+                    () -> System.out.println("  (!) Khong tim thay khach hang, chuyen sang khach vang lai.")
+            );
         } else {
             System.out.println("  >> Khach vang lai - khong luu thong tin.");
         }
@@ -128,34 +122,38 @@ public class Main {
                 .forEach(m -> System.out.printf("  %-6s | %-25s | %,12.0f%n",
                         m.getMaMon(), m.getTenMon(), m.getGiaBan().doubleValue()));
 
-        // BUOC 4: CHON MON
         System.out.println("\n[BUOC 4] CHON MON CHO KHACH");
         List<ChiTietDonHang> gioHang = new ArrayList<>();
         while (true) {
             System.out.print("  Nhap ma mon (Enter de ket thuc): ");
             String maMon = SCANNER.nextLine().trim();
             if (maMon.isEmpty()) break;
-            var mon = MON_AN_SERVICE.getAll().stream()
+            var monOpt = MON_AN_SERVICE.getAll().stream()
                     .filter(m -> m.getMaMon().equalsIgnoreCase(maMon) && m.getTrangThai() == TrangThaiMon.DANG_BAN)
                     .findFirst();
-            if (mon.isEmpty()) {
+            if (monOpt.isEmpty()) {
                 System.out.println("  (!) Mon khong ton tai hoac ngung ban.");
                 continue;
             }
             int sl = InputUtil.readInt(SCANNER, "  So luong: ");
-            if (sl <= 0) { System.out.println("  (!) So luong phai > 0."); continue; }
-            gioHang.add(new ChiTietDonHang(null, null, mon.get().getMaMon(), mon.get().getTenMon(), sl, mon.get().getGiaBan(), mon.get().getGiaBan().multiply(java.math.BigDecimal.valueOf(sl))));
-            System.out.printf("  >> Da them: %s x%d = %,.0f VND%n", mon.get().getTenMon(), sl, mon.get().getGiaBan().multiply(java.math.BigDecimal.valueOf(sl)).doubleValue());
+            if (sl <= 0) {
+                System.out.println("  (!) So luong phai > 0.");
+                continue;
+            }
+            monOpt.ifPresent(m -> {
+                BigDecimal thanhTien = m.getGiaBan().multiply(BigDecimal.valueOf(sl));
+                gioHang.add(new ChiTietDonHang(null, null, m.getMaMon(), m.getTenMon(), sl, m.getGiaBan(), thanhTien));
+                System.out.printf("  >> Da them: %s x%d = %,.0f VND%n", m.getTenMon(), sl, thanhTien.doubleValue());
+            });
         }
         if (gioHang.isEmpty()) {
             System.out.println("(!) Gio hang trong. Huy giao dich.");
             return;
         }
 
-        // BUOC 5: XEM HOA DON TAM
-        java.math.BigDecimal tienHang = gioHang.stream()
-                .map(ct -> ct.getDonGia().multiply(java.math.BigDecimal.valueOf(ct.getSoLuong())))
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+        BigDecimal tienHang = gioHang.stream()
+                .map(ct -> ct.getDonGia().multiply(BigDecimal.valueOf(ct.getSoLuong())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         System.out.println("\n[BUOC 5] HOA DON TAM");
         System.out.printf("  Khach hang  : %s%n", tenKHDon);
         System.out.printf("  Nhan vien   : %s | Chi nhanh: %s%n", tenNV, maCN);
@@ -163,17 +161,16 @@ public class Main {
         System.out.println("  " + "-".repeat(60));
         gioHang.forEach(ct -> System.out.printf("  %-25s | %-5d | %,12.0f | %,12.0f%n",
                 ct.getTenMon(), ct.getSoLuong(), ct.getDonGia().doubleValue(),
-                ct.getDonGia().multiply(java.math.BigDecimal.valueOf(ct.getSoLuong())).doubleValue()));
+                ct.getDonGia().multiply(BigDecimal.valueOf(ct.getSoLuong())).doubleValue()));
         System.out.println("  " + "-".repeat(60));
         System.out.printf("  Tien hang: %,.0f VND%n", tienHang.doubleValue());
 
-        // BUOC 6: KHUYEN MAI
         System.out.println("\n[BUOC 6] AP DUNG KHUYEN MAI");
         var activeKM = KHUYEN_MAI_SERVICE.getAll().stream()
-                .filter(km -> km.getTrangThai() == com.nhom17.enums.TrangThaiKhuyenMai.DANG_AP_DUNG)
+                .filter(km -> km.getTrangThai() == TrangThaiKhuyenMai.DANG_AP_DUNG)
                 .filter(km -> tienHang.compareTo(km.getDonToiThieu()) >= 0)
                 .toList();
-        java.math.BigDecimal tienGiam = java.math.BigDecimal.ZERO;
+        BigDecimal tienGiam = BigDecimal.ZERO;
         String maKM = null;
         if (activeKM.isEmpty()) {
             System.out.println("  Khong co khuyen mai phu hop.");
@@ -183,24 +180,22 @@ public class Main {
                     km.getMaKM(), km.getTenKM(), km.getPhanTramGiam(), km.getDonToiThieu().doubleValue()));
             System.out.print("  Nhap ma khuyen mai (Enter de bo qua): ");
             String maKMInput = SCANNER.nextLine().trim();
-            if (!maKMInput.isEmpty()) {
-                var kmOpt = activeKM.stream().filter(km -> km.getMaKM().equalsIgnoreCase(maKMInput)).findFirst();
-                if (kmOpt.isPresent()) {
-                    var km = kmOpt.get();
-                    tienGiam = tienHang.multiply(java.math.BigDecimal.valueOf(km.getPhanTramGiam())).divide(java.math.BigDecimal.valueOf(100));
-                    if (km.getGiamToiDa() != null && tienGiam.compareTo(km.getGiamToiDa()) > 0)
-                        tienGiam = km.getGiamToiDa();
-                    maKM = km.getMaKM();
-                    System.out.printf("  >> Ap dung [%s]: giam %,.0f VND%n", km.getTenKM(), tienGiam.doubleValue());
-                } else {
-                    System.out.println("  (!) Ma khuyen mai khong hop le, bo qua.");
-                }
+            var kmOpt = activeKM.stream().filter(km -> km.getMaKM().equalsIgnoreCase(maKMInput)).findFirst();
+            if (kmOpt.isPresent()) {
+                var km = kmOpt.get();
+                BigDecimal giam = tienHang.multiply(BigDecimal.valueOf(km.getPhanTramGiam())).divide(BigDecimal.valueOf(100));
+                tienGiam = Optional.ofNullable(km.getGiamToiDa())
+                        .filter(max -> giam.compareTo(max) > 0)
+                        .orElse(giam);
+                maKM = km.getMaKM();
+                System.out.printf("  >> Ap dung [%s]: giam %,.0f VND%n", km.getTenKM(), tienGiam.doubleValue());
+            } else if (!maKMInput.isEmpty()) {
+                System.out.println("  (!) Ma khuyen mai khong hop le, bo qua.");
             }
         }
-        java.math.BigDecimal tongTien = tienHang.subtract(tienGiam);
+        BigDecimal tongTien = tienHang.subtract(tienGiam);
         System.out.printf("  Tong tien phai tra: %,.0f VND%n", tongTien.doubleValue());
 
-        // BUOC 7: THANH TOAN
         System.out.println("\n[BUOC 7] PHUONG THUC THANH TOAN");
         System.out.println("  1. TIEN_MAT  2. CHUYEN_KHOAN  3. VI_DIEN_TU  4. THE");
         int ptChoice = InputUtil.readInt(SCANNER, "  Chon phuong thuc [1-4]: ");
@@ -211,29 +206,27 @@ public class Main {
             default -> PhuongThucThanhToan.TIEN_MAT;
         };
 
-        // BUOC 8: LUU VAO DATABASE
         long newMaDH = DON_HANG_SERVICE.getAll().stream()
-                .mapToLong(dh -> dh.getMaDH()).max().orElse(1000L) + 1;
+                .mapToLong(DonHang::getMaDH).max().orElse(1000L) + 1;
         String newMaTT = "TT" + String.format("%03d", THANH_TOAN_SERVICE.getAll().size() + 1);
 
         DonHang donHang = new DonHang(newMaDH, java.time.LocalDateTime.now(),
                 TrangThaiDonHang.DA_HOAN_THANH, tienHang, tienGiam, tongTien,
                 maKHDon, maKM, maNV, maCN);
 
-        List<ChiTietDonHang> chiTiets = new ArrayList<>();
-        for (int i = 0; i < gioHang.size(); i++) {
-            var ct = gioHang.get(i);
-            chiTiets.add(new ChiTietDonHang(
-                    (long)(newMaDH * 100 + i + 1), newMaDH,
-                    ct.getMaMon(), ct.getSoLuong(), ct.getDonGia()));
-        }
+        List<ChiTietDonHang> chiTiets = java.util.stream.IntStream.range(0, gioHang.size())
+                .mapToObj(i -> new ChiTietDonHang(
+                        newMaDH * 100 + i + 1, newMaDH,
+                        gioHang.get(i).getMaMon(),
+                        gioHang.get(i).getSoLuong(),
+                        gioHang.get(i).getDonGia()))
+                .toList();
 
         ThanhToan thanhToan = new ThanhToan(newMaTT, newMaDH, tongTien,
                 phuongThuc, TrangThaiThanhToan.DA_THANH_TOAN, java.time.LocalDateTime.now());
 
         boolean ok = DON_HANG_SERVICE.addDonHang(donHang, chiTiets, List.of(thanhToan));
 
-        // KET QUA
         System.out.println("\n" + "=".repeat(60));
         if (ok) {
             System.out.println("   THANH TOAN THANH CONG!");
@@ -260,7 +253,7 @@ public class Main {
                  2. Thuc thi 30 cau truy van (Section 9 - 3 Thanh vien)
                  3. Thao tac nang cao voi Java Stream API / Lambda Functions
                  4. Tao lai toan bo database & nap lai du lieu mau tu dau
-                 5. [DEMO] Nhan vien ban hang cho khach vang lai
+                 5. [DEMO] Nhan vien ban hang (Khach thanh vien / Khach vang lai)
                  0. Thoat chuong trinh
                 =============================================================
                 """);

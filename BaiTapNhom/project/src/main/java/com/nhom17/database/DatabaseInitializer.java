@@ -347,9 +347,10 @@ public final class DatabaseInitializer {
             ('T052', 'M016', 'CN03', 4, '2026-06-30 08:00:00'),
             ('T053', 'M017', 'CN03', 3, '2026-06-30 08:00:00'),
             ('T054', 'M018', 'CN03', 0, '2026-06-30 08:00:00');
+        """);
 
         // 7.7 KhuyenMai
-        stmt.execute(""
+        stmt.execute("""
             INSERT INTO khuyen_mai (maKM, tenKM, phanTramGiam, donToiThieu, giamToiDa, ngayBatDau, ngayKetThuc, trangThai) VALUES
             ('KM01', 'Giam 10% don tu 150.000', 10, 150000, 30000, '2026-02-01', '2026-02-28', 'HET_HAN'),
             ('KM02', 'Uu dai thang 3 giam 15%', 15, 100000, 40000, '2026-03-01', '2026-03-31', 'HET_HAN'),
@@ -388,9 +389,10 @@ public final class DatabaseInitializer {
             (1026, '2026-06-20 18:00:00', 'SAN_SANG', 100000, 10000, 90000, 'KM03', 'KH005', 'NV04', 'CN02'),
             (1027, '2026-06-22 11:45:00', 'DA_XAC_NHAN', 135000, 13500, 121500, 'KM03', 'KH007', 'NV05', 'CN03'),
             (1028, '2026-06-25 12:10:00', 'CHO_XAC_NHAN', 80000, 0, 80000, NULL, NULL, 'NV03', 'CN02');
+        """);
 
         // 7.9 ChiTietDonHang
-        stmt.execute(""
+        stmt.execute("""
             INSERT INTO chi_tiet_don_hang (maCTDH, maDH, maMon, soLuong, donGia, thanhTien) VALUES
             (1, 1001, 'M001', 2, 45000, 90000),
             (2, 1001, 'M007', 1, 30000, 30000),
@@ -449,9 +451,10 @@ public final class DatabaseInitializer {
             (55, 1027, 'M006', 1, 120000, 120000),
             (56, 1027, 'M012', 1, 15000, 15000),
             (57, 1028, 'M002', 2, 40000, 80000);
+        """);
 
         // 7.10 ThanhToan
-        stmt.execute(""
+        stmt.execute("""
             INSERT INTO thanh_toan (maTT, maDH, soTien, ngayThanhToan, phuongThuc, trangThai) VALUES
             ('TT001', 1001, 150000, '2026-01-05 10:20:00', 'TIEN_MAT', 'DA_THANH_TOAN'),
             ('TT002', 1002, 165000, '2026-01-12 12:25:00', 'CHUYEN_KHOAN', 'DA_THANH_TOAN'),
