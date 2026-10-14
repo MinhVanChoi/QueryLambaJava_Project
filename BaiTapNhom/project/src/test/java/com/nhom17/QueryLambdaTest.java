@@ -13,7 +13,7 @@ public class QueryLambdaTest {
 
     @BeforeAll
     public static void setUp() {
-        DatabaseInitializer.initialize();
+        DatabaseInitializer.reinitialize();
         service = new QueryLambdaService();
     }
 

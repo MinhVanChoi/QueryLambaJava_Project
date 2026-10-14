@@ -13,7 +13,7 @@ public class QueryTest {
 
     @BeforeAll
     public static void setUp() {
-        DatabaseInitializer.initialize();
+        DatabaseInitializer.reinitialize();
         queryDAO = new QueryDAO();
     }
 

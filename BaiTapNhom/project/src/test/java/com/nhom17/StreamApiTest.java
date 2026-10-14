@@ -20,7 +20,7 @@ public class StreamApiTest {
 
     @BeforeAll
     public static void setUp() {
-        DatabaseInitializer.initialize();
+        DatabaseInitializer.reinitialize();
         service = new FastFoodService();
     }
 
