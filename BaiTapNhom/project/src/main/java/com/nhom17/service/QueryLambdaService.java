@@ -26,17 +26,24 @@ public class QueryLambdaService {
         Set<String> coTK = taiKhoanDAO.findAll().stream()
                 .map(TaiKhoan::getMaNV)
                 .collect(Collectors.toSet());
+      
         return nhanVienDAO.findAll().stream()
-                .filter(nv -> !coTK.contains(nv.getMaNV()))
+                .filter(a -> !coTK.contains(a.getMaNV()))
                 .toList();
     }
 
     public List<MonAn> q02_MonBurgerGia40kDen60k() {
-        return monAnDAO.findAll().stream()
-                .filter(m -> "DM01".equals(m.getMaDM()))
-                .filter(m -> m.getGiaBan().compareTo(BigDecimal.valueOf(40000)) >= 0
-                          && m.getGiaBan().compareTo(BigDecimal.valueOf(60000)) <= 0)
+        return monAnDAO.findAll().stream() 
+                .filter(a -> "DM01".equals(a.getMaDM()))
+                .filter(b -> b.getGiaBan().compareTo(BigDecimal.valueOf(40000)) >= 0
+                          && b.getGiaBan().compareTo(BigDecimal.valueOf(60000)) <= 0)
+
+
+
                 .sorted(Comparator.comparing(MonAn::getGiaBan).reversed())
+
+
+
                 .toList();
     }
 
@@ -70,7 +77,8 @@ public class QueryLambdaService {
     }
 
     public List<String> q07_DonHangKemThongTin() {
-        return donHangDAO.findAll().stream().map(dh -> {
+        return donHangDAO.findAll().stream()
+        .map(dh -> {
             String tenNV = nhanVienDAO.findById(dh.getMaNV()).map(NhanVien::getHoTen).orElse("");
             String tenKH = khachHangDAO.findById(dh.getMaKH()).map(KhachHang::getHoTen).orElse("(Khach vang lai)");
             return dh.getMaDH() + " | " + tenKH + " | " + tenNV + " | " + dh.getTongTien();
@@ -103,7 +111,10 @@ public class QueryLambdaService {
 
     public Map<Integer, BigDecimal> q11_DoanhThuTheoThang() {
         return donHangDAO.findAll().stream()
+
+        
                 .filter(dh -> dh.getTrangThai() == TrangThaiDonHang.DA_HOAN_THANH && dh.getNgayDat().getYear() == 2026)
+
                 .collect(Collectors.groupingBy(
                         dh -> dh.getNgayDat().getMonthValue(),
                         TreeMap::new,
