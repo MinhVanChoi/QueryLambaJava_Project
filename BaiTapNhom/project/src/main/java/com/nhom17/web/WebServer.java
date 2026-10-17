@@ -88,7 +88,7 @@ public class WebServer {
         dishImages.put("M004", "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=900&q=85");
         dishImages.put("M005", "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=900&q=85");
         dishImages.put("M006", "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?auto=format&fit=crop&w=900&q=85");
-        dishImages.put("M007", "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=900&q=85");
+        dishImages.put("M007", "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85");
         dishImages.put("M008", "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=85");
         dishImages.put("M009", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85");
         dishImages.put("M010", "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=85");

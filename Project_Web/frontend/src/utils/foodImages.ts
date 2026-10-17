@@ -12,7 +12,7 @@ export const DISH_IMAGES: Record<string, string> = {
   M006: 'https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?auto=format&fit=crop&w=900&q=85', // Combo Gà Rán Gia Đình (4 miếng)
 
   // Khoai tây chiên
-  M007: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=900&q=85', // Khoai Tây Chiên (Vừa)
+  M007: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85', // Khoai Tây Chiên (Vừa)
   M008: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=85', // Khoai Tây Lắc Phô Mai
 
   // Pizza

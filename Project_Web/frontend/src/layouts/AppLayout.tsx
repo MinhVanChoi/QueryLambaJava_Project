@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, Link, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, UtensilsCrossed, ShoppingBag, Users, UserCheck,
   PackageOpen, Tag, DatabaseZap, RotateCcw, CheckCircle2,
-  Menu, X, Building2, BarChart3, Globe,
+  Menu, X, Building2, BarChart3, Globe, LogOut,
 } from 'lucide-react';
 import { ApiClient } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export const AppLayout: React.FC = () => {
+  const { user, logout } = useAuth();
   const [resetting, setResetting] = useState(false);
   const [resetMsg, setResetMsg] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  if (user.role === 'CUSTOMER') {
+    return <Navigate to="/" replace />;
+  }
 
   const handleResetDatabase = async () => {
     if (!window.confirm('Reset database to original sample data? This will reinitialize all 11 tables.')) return;
@@ -118,7 +127,7 @@ export const AppLayout: React.FC = () => {
             <button
               className="btn btn-secondary btn-sm"
               style={{ display: 'flex' }}
-              onClick={() => setSidebarOpen(o => !o)}
+              onClick={() => setSidebarOpen((o: boolean) => !o)}
             >
               {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
@@ -126,6 +135,18 @@ export const AppLayout: React.FC = () => {
           </div>
 
           <div className="topbar-actions">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px', background: 'var(--primary-50)', borderRadius: 6, fontSize: 13 }}>
+              <span style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{(user as any).hoTen || (user as any).tenDangNhap}</span>
+              <span className="badge badge-info" style={{ fontSize: 10, padding: '2px 6px' }}>{user.role}</span>
+            </div>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => logout()}
+              title="Sign Out"
+            >
+              <LogOut size={14} />
+              <span>Sign Out</span>
+            </button>
             <span className="badge badge-success" style={{ padding: '6px 12px' }}>
               <CheckCircle2 size={13} /> DB Online
             </span>

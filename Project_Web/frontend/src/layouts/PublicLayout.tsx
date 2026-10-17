@@ -39,9 +39,6 @@ export const PublicLayout: React.FC = () => {
             <NavLink to="/menu" className={({ isActive }) => `pub-nav-link ${isActive ? 'active' : ''}`}>
               Menu
             </NavLink>
-            <Link to="/admin/dashboard" className="pub-nav-link" style={{ color: 'var(--primary-600)' }}>
-              Admin Panel
-            </Link>
           </div>
 
           {/* Right side actions */}
@@ -67,6 +64,16 @@ export const PublicLayout: React.FC = () => {
                 </button>
                 {userMenuOpen && (
                   <div className="pub-user-dropdown">
+                    {user.role !== 'CUSTOMER' && (
+                      <Link
+                        to="/admin/dashboard"
+                        className="pub-dropdown-item"
+                        onClick={() => setUserMenuOpen(false)}
+                        style={{ color: 'var(--primary-600)', fontWeight: 700, borderBottom: '1px solid var(--border-subtle)' }}
+                      >
+                        🛡️ Admin Panel
+                      </Link>
+                    )}
                     <Link to="/my-orders" className="pub-dropdown-item" onClick={() => setUserMenuOpen(false)}>
                       My Orders
                     </Link>
@@ -107,6 +114,11 @@ export const PublicLayout: React.FC = () => {
             </NavLink>
             {user ? (
               <>
+                {user.role !== 'CUSTOMER' && (
+                  <NavLink to="/admin/dashboard" className="pub-mobile-link" onClick={() => setMobileOpen(false)} style={{ color: 'var(--primary-600)', fontWeight: 700 }}>
+                    🛡️ Admin Panel
+                  </NavLink>
+                )}
                 <NavLink to="/my-orders" className="pub-mobile-link" onClick={() => setMobileOpen(false)}>
                   My Orders
                 </NavLink>
@@ -153,7 +165,6 @@ export const PublicLayout: React.FC = () => {
             <Link to="/register" className="pub-footer-link">Register</Link>
             <Link to="/my-orders" className="pub-footer-link">Order History</Link>
             <Link to="/profile" className="pub-footer-link">My Profile</Link>
-            <Link to="/admin/dashboard" className="pub-footer-link">Admin Panel</Link>
           </div>
 
           <div className="pub-footer-col">
