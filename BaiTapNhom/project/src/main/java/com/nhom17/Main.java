@@ -35,12 +35,12 @@ public class Main {
         System.out.println("  Thanh vien: Nguyen Mai Thien Qui - Nguyen Quoc Tien - Choi Minh Van");
         System.out.println("=".repeat(75));
 
-        //DatabaseInitializer.initialize();
+        DatabaseInitializer.initialize();
 
         int choice;
         do {
             showMainMenu();
-            choice = InputUtil.readInt(SCANNER, "Chon chuc nang [0-5]: ");
+            choice = InputUtil.readInt(SCANNER, "Chon chuc nang [0-6]: ");
 
             switch (choice) {
                 case 1 -> menuCRUD();
@@ -48,6 +48,7 @@ public class Main {
                 case 3 -> menuStreamApiLambda();
                 case 4 -> reinitializeDatabase();
                 case 5 -> menuBanHangDemo();
+                case 6 -> startWebServerFromMain();
                 case 0 -> System.out.println("\nCam on ban da su dung he thong MIS Quan ly Cua Hang Do An Nhanh!");
                 default -> System.out.println("(!) Lua chon khong hop le, vui long chon lai.");
             }
@@ -254,9 +255,27 @@ public class Main {
                  3. Thao tac nang cao voi Java Stream API / Lambda Functions
                  4. Tao lai toan bo database & nap lai du lieu mau tu dau
                  5. [DEMO] Nhan vien ban hang (Khach thanh vien / Khach vang lai)
+                 6. [WEB] Khoi dong Web Server giao dien Linear / Notion
                  0. Thoat chuong trinh
                 =============================================================
                 """);
+    }
+
+    private static void startWebServerFromMain() {
+        System.out.println("\nDang khoi dong Web Server tren cong 8080...");
+        try {
+            com.nhom17.web.WebServer webServer = new com.nhom17.web.WebServer();
+            webServer.start(8080);
+            System.out.println(">> Web Server da san sang! Mo trinh duyet tai: http://localhost:8080");
+            try {
+                if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI("http://localhost:8080"));
+                }
+            } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("(!) Loi khi khoi dong Web Server: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private static void reinitializeDatabase() {

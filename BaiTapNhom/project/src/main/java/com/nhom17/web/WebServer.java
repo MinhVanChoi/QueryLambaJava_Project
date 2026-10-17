@@ -71,9 +71,11 @@ public class WebServer {
         server.createContext("/", this::handleStatic);
 
         server.start();
+        Path root = findWebRoot();
         System.out.println("===========================================================================");
         System.out.println("  FAST FOOD MIS - MINIMALIST WEB PLATFORM (LINEAR / NOTION EDITION)");
         System.out.println("  URL: http://localhost:" + port);
+        System.out.println("  Web directory: " + root);
         System.out.println("  Database Mode: " + (DBConnection.isH2Mode() ? "H2 In-Memory (MySQL Compatible)" : "MySQL 8 Server"));
         System.out.println("===========================================================================");
     }
@@ -917,13 +919,38 @@ public class WebServer {
         return res;
     }
 
+    private Path findWebRoot() {
+        List<Path> candidates = List.of(
+                Path.of("web"),
+                Path.of("BaiTapNhom", "project", "web"),
+                Path.of("project", "web")
+        );
+        for (Path p : candidates) {
+            if (Files.exists(p.resolve("index.html"))) {
+                return p.toAbsolutePath().normalize();
+            }
+        }
+        try {
+            Path codePath = Path.of(WebServer.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            // codePath is target/classes
+            Path parent = codePath.getParent(); // target
+            if (parent != null) {
+                Path projectDir = parent.getParent(); // project
+                if (projectDir != null && Files.exists(projectDir.resolve("web/index.html"))) {
+                    return projectDir.resolve("web").toAbsolutePath().normalize();
+                }
+            }
+        } catch (Exception ignored) {}
+        return Path.of("web").toAbsolutePath().normalize();
+    }
+
     private void handleStatic(HttpExchange exchange) throws IOException {
         String rawPath = exchange.getRequestURI().getPath();
         if (rawPath.equals("/") || rawPath.isBlank()) {
             rawPath = "/index.html";
         }
 
-        Path webRoot = Path.of("web").toAbsolutePath().normalize();
+        Path webRoot = findWebRoot();
         Path requestedFile = webRoot.resolve(rawPath.substring(1)).normalize();
 
         if (!requestedFile.startsWith(webRoot) || !Files.exists(requestedFile) || Files.isDirectory(requestedFile)) {
@@ -931,7 +958,8 @@ public class WebServer {
         }
 
         if (!Files.exists(requestedFile)) {
-            byte[] notFound = "404 Not Found".getBytes(StandardCharsets.UTF_8);
+            String msg = "404 Not Found - Web folder not located at: " + webRoot;
+            byte[] notFound = msg.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(404, notFound.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(notFound);
