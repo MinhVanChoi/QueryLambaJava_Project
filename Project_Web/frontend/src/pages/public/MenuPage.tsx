@@ -3,22 +3,9 @@ import { Search, ShoppingBag, Filter, Star } from 'lucide-react';
 import { ApiClient } from '../../api/client';
 import { FoodItem, Category, Branch } from '../../types';
 import { useCart } from '../../context/CartContext';
+import { getFoodImage } from '../../utils/foodImages';
 
 const formatVND = (v: number) => v.toLocaleString('vi-VN') + ' ₫';
-
-const getFoodEmoji = (name: string) => {
-  const n = name.toLowerCase();
-  if (n.includes('burger') || n.includes('ham')) return '🍔';
-  if (n.includes('pizza')) return '🍕';
-  if (n.includes('chicken') || n.includes('ga')) return '🍗';
-  if (n.includes('noodle') || n.includes('pho') || n.includes('bun')) return '🍜';
-  if (n.includes('rice') || n.includes('com')) return '🍚';
-  if (n.includes('drink') || n.includes('juice') || n.includes('soda') || n.includes('nuoc')) return '🥤';
-  if (n.includes('fry') || n.includes('khoai')) return '🍟';
-  if (n.includes('cake') || n.includes('banh')) return '🍰';
-  if (n.includes('salad') || n.includes('rau')) return '🥗';
-  return '🍽️';
-};
 
 const MenuPage: React.FC = () => {
   const [foods, setFoods] = useState<FoodItem[]>([]);
@@ -148,8 +135,13 @@ const MenuPage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
             {filtered.map(item => (
               <div key={item.maMon} className="food-card">
-                <div className="food-card-image">
-                  <span style={{ fontSize: 72 }}>{getFoodEmoji(item.tenMon)}</span>
+                <div className="food-card-image" style={{ overflow: 'hidden', height: 160 }}>
+                  <img
+                    src={getFoodImage(item.maMon, item.tenMon)}
+                    alt={item.tenMon}
+                    loading="lazy"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                  />
                 </div>
                 <div className="food-card-body">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>

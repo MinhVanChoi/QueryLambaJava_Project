@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { getFoodImage } from '../../utils/foodImages';
 
 const formatVND = (v: number) => v.toLocaleString('vi-VN') + ' ₫';
 
@@ -42,9 +43,15 @@ const CartPage: React.FC = () => {
               boxShadow: 'var(--shadow-sm)'
             }}>
               <div style={{
-                width: 64, height: 64, background: 'var(--primary-50)', borderRadius: 12,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, flexShrink: 0
-              }}>🍽️</div>
+                width: 64, height: 64, borderRadius: 10, overflow: 'hidden', flexShrink: 0,
+                background: 'var(--primary-50)'
+              }}>
+                <img
+                  src={getFoodImage(item.maMon, item.tenMon)}
+                  alt={item.tenMon}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 2 }}>{item.tenMon}</div>
                 <div style={{ color: 'var(--primary-600)', fontWeight: 700 }}>{formatVND(item.giaBan)}</div>

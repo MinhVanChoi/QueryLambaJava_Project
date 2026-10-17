@@ -49,6 +49,7 @@ export interface FoodItem {
   moTa?: string;
   trangThai: TrangThaiMon;
   maDM: string;
+  hinhAnh?: string;
 }
 
 export interface Employee {

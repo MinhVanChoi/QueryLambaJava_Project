@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Plus, Pencil, Trash2, Search, UtensilsCrossed, List, X } from 'lucide-react';
 import { ApiClient } from '../../api/client';
 import { FoodItem, Category } from '../../types';
+import { getFoodImage } from '../../utils/foodImages';
 
 const formatVND = (v: number) => v.toLocaleString('vi-VN') + ' ₫';
 
@@ -167,7 +168,16 @@ const FoodPage: React.FC = () => {
                   {filteredFoods.map(f => (
                     <tr key={f.maMon}>
                       <td><code style={{ fontSize: 12, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{f.maMon}</code></td>
-                      <td><strong>{f.tenMon}</strong></td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <img
+                            src={getFoodImage(f.maMon, f.tenMon)}
+                            alt={f.tenMon}
+                            style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' }}
+                          />
+                          <strong>{f.tenMon}</strong>
+                        </div>
+                      </td>
                       <td>{categories.find(c => c.maDM === f.maDM)?.tenDM ?? f.maDM}</td>
                       <td style={{ fontWeight: 700, color: 'var(--primary-600)' }}>{formatVND(f.giaBan)}</td>
                       <td>

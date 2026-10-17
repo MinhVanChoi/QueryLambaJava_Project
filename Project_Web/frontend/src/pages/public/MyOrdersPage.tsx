@@ -4,6 +4,7 @@ import { ShoppingBag, Eye, Calendar, MapPin, Tag } from 'lucide-react';
 import { ApiClient } from '../../api/client';
 import { Order, OrderDetailResponse, Branch } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { getFoodImage } from '../../utils/foodImages';
 
 const formatVND = (v: number) => v.toLocaleString('vi-VN') + ' ₫';
 const formatDate = (d: string) => new Date(d).toLocaleString('en-US');
@@ -174,8 +175,15 @@ const MyOrdersPage: React.FC = () => {
                 <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Items</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {selectedOrder.items.map(item => (
-                    <div key={item.maCTDH} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                      <span>{item.tenMon || item.maMon} × {item.soLuong}</span>
+                    <div key={item.maCTDH} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <img
+                          src={getFoodImage(item.maMon, item.tenMon)}
+                          alt={item.tenMon}
+                          style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }}
+                        />
+                        <span>{item.tenMon || item.maMon} × {item.soLuong}</span>
+                      </div>
                       <strong>{formatVND(item.thanhTien)}</strong>
                     </div>
                   ))}

@@ -4,24 +4,9 @@ import { ShoppingBag, Star, ArrowRight, UtensilsCrossed, Tag } from 'lucide-reac
 import { ApiClient } from '../../api/client';
 import { FoodItem, Promotion, Branch } from '../../types';
 import { useCart } from '../../context/CartContext';
+import { getFoodImage } from '../../utils/foodImages';
 
 const formatVND = (v: number) => v.toLocaleString('vi-VN') + ' ₫';
-
-// Food emoji map based on category names or food IDs
-const getFoodEmoji = (name: string) => {
-  const n = name.toLowerCase();
-  if (n.includes('burger') || n.includes('ham')) return '🍔';
-  if (n.includes('pizza')) return '🍕';
-  if (n.includes('chicken') || n.includes('ga')) return '🍗';
-  if (n.includes('noodle') || n.includes('pho') || n.includes('bun')) return '🍜';
-  if (n.includes('rice') || n.includes('com')) return '🍚';
-  if (n.includes('drink') || n.includes('juice') || n.includes('soda') || n.includes('nuoc')) return '🥤';
-  if (n.includes('fry') || n.includes('khoai')) return '🍟';
-  if (n.includes('cake') || n.includes('banh')) return '🍰';
-  if (n.includes('salad') || n.includes('rau')) return '🥗';
-  if (n.includes('fish') || n.includes('ca')) return '🐟';
-  return '🍽️';
-};
 
 const HomePage: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<FoodItem[]>([]);
@@ -132,8 +117,13 @@ const HomePage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
             {featuredItems.map(item => (
               <div key={item.maMon} className="food-card">
-                <div className="food-card-image">
-                  <span style={{ fontSize: 64 }}>{getFoodEmoji(item.tenMon)}</span>
+                <div className="food-card-image" style={{ overflow: 'hidden', height: 160 }}>
+                  <img
+                    src={getFoodImage(item.maMon, item.tenMon)}
+                    alt={item.tenMon}
+                    loading="lazy"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                  />
                   <div className="food-card-overlay" />
                 </div>
                 <div className="food-card-body">
