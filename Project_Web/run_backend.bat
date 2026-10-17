@@ -17,5 +17,5 @@ echo.
 echo Dang khoi dong Spring Boot Backend tai http://localhost:8080 ...
 echo.
 
-call "%MAVEN_BIN%\mvn.cmd" spring-boot:run
+call "%MAVEN_BIN%\mvn.cmd" spring-boot:run -DskipTests
 pause
