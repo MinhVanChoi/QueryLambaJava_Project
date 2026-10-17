@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FASTFOOD.17 — Hệ thống Đặt Món & Quản Trị Chuỗi Thức Ăn Nhanh</title>
+  <link rel="stylesheet" href="/css/design-system.css" />
+</head>
+<body>
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div style="display:flex; align-items:center; gap:24px;">
+        <a href="#home" class="brand-logo" onclick="App.navigate('home'); return false;">
+          <span class="brand-mark">F17</span>
+          <span>FASTFOOD.17</span>
+          <span class="brand-tag" id="dbModeBadge">MIS v2.6</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Điều hướng chính">
+          <a href="#home" class="nav-link active" data-nav="home" onclick="App.navigate('home'); return false;">Trang chủ</a>
+          <a href="#menu" class="nav-link" data-nav="menu" onclick="App.navigate('menu'); return false;">Thực đơn</a>
+          <a href="#checkout" class="nav-link" data-nav="checkout" onclick="App.navigate('checkout'); return false;">Đặt hàng</a>
+          <a href="#account" class="nav-link" data-nav="account" onclick="App.navigate('account'); return false;">Tài khoản & Đơn hàng</a>
+          <a href="#admin" class="nav-link" data-nav="admin" onclick="App.navigate('admin'); return false;">Quản trị</a>
+        </nav>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="search-trigger" onclick="App.openQuickSearch()" title="Tìm kiếm nhanh (Ctrl+K)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Tìm món ăn...</span>
+          <span class="kbd-shortcut">Ctrl K</span>
+        </button>
+
+        <button type="button" class="btn btn-secondary btn-sm" id="headerAccountBtn" onclick="App.navigate('account')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="headerAccountLabel">Tài khoản</span>
+        </button>
+
+        <button type="button" class="btn btn-primary btn-sm cart-btn" onclick="App.toggleCartDrawer(true)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span>Giỏ hàng</span>
+          <span class="cart-badge" id="headerCartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAVIGATION BAR -->
+  <div class="mobile-nav-bar" style="display:none; background:#FFF; border-bottom:1px solid var(--border-subtle); padding:8px 16px; gap:6px; overflow-x:auto;">
+    <button class="btn btn-ghost btn-sm" onclick="App.navigate('home')">Trang chủ</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.navigate('menu')">Thực đơn</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.navigate('checkout')">Đặt hàng</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.navigate('account')">Đơn hàng</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.navigate('admin')">Quản trị</button>
+  </div>
+
+  <!-- MAIN VIEWPORT -->
+  <main id="appRoot" class="container" style="padding-bottom: 56px; flex: 1;">
+    <div style="padding: 64px 0; text-align: center; color: var(--text-muted);">
+      Đang tải dữ liệu thực đơn từ hệ thống...
+    </div>
+  </main>
+
+  <!-- DISH DETAIL & CUSTOMIZATION MODAL -->
+  <div class="backdrop" id="dishModalBackdrop" onclick="if(event.target===this) App.closeDishModal()">
+    <div class="modal-dialog" id="dishModalContent" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- QUICK SEARCH (CTRL+K) MODAL -->
+  <div class="backdrop" id="searchModalBackdrop" onclick="if(event.target===this) App.closeQuickSearch()">
+    <div class="modal-dialog" style="max-width: 580px;">
+      <div class="modal-header" style="gap: 10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="quickSearchInput" class="input-control" style="border:none; flex:1; font-size:0.98rem; height:32px; padding:0;" placeholder="Nhập tên món ăn (VD: Burger bò, Gà rán, Pizza, Trà đào...)" oninput="App.renderQuickSearchResults(this.value)" />
+        <button class="btn btn-ghost btn-sm" onclick="App.closeQuickSearch()">ESC</button>
+      </div>
+      <div id="quickSearchResults" style="max-height: 380px; overflow-y: auto; padding: 12px;"></div>
+    </div>
+  </div>
+
+  <!-- SLIDE-OVER CART DRAWER -->
+  <div class="drawer-backdrop" id="cartDrawerBackdrop" onclick="if(event.target===this) App.toggleCartDrawer(false)">
+    <aside class="cart-drawer" aria-label="Giỏ hàng của bạn">
+      <div class="drawer-header">
+        <div>
+          <h2 style="font-size:1.05rem; font-weight:600;">Giỏ hàng của bạn</h2>
+          <p style="font-size:0.78rem; color:var(--text-muted);" id="drawerSubtitle">Lưu tự động trên trình duyệt</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="App.toggleCartDrawer(false)">Đóng ✕</button>
+      </div>
+      <div class="drawer-body" id="cartDrawerBody"></div>
+      <div class="drawer-footer" id="cartDrawerFooter"></div>
+    </aside>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand-logo" style="margin-bottom: 10px;">
+            <span class="brand-mark">F17</span>
+            <span>FASTFOOD.17 — Chuỗi Thức Ăn Nhanh</span>
+          </div>
+          <p style="color:var(--text-muted); max-width:38ch; line-height:1.6;">
+            Trải nghiệm ẩm thực nhanh chuẩn mực với nguyên liệu tươi mới mỗi ngày. Hệ thống quản lý thông tin (MIS) tích hợp Java 17 Stream API &amp; Lambda — Nhóm 17 HCMUTE.
+          </p>
+        </div>
+        <div>
+          <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px;">Thực đơn chính</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <a href="#menu" onclick="App.filterByCategory('DM01'); return false;">Burger Nướng Lửa Hồng</a>
+            <a href="#menu" onclick="App.filterByCategory('DM02'); return false;">Gà Rán Giòn Cay</a>
+            <a href="#menu" onclick="App.filterByCategory('DM03'); return false;">Pizza Nướng Lò</a>
+            <a href="#menu" onclick="App.filterByCategory('DM06'); return false;">Combo Tiết Kiệm</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px;">Hệ thống chi nhánh</div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:0.82rem;">
+            <span>• CN01: 25 Nguyễn Huệ, Quận 1, TP.HCM</span>
+            <span>• CN02: 120 Võ Văn Tần, Quận 3, TP.HCM</span>
+            <span>• CN03: 45 Võ Văn Ngân, TP. Thủ Đức</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px;">Thành viên Nhóm 17</div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:0.82rem;">
+            <span>• Nguyễn Quốc Tiên (22110244)</span>
+            <span>• Chỏi Minh Văn</span>
+            <span>• Nguyễn Mai Thiên Quí</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
